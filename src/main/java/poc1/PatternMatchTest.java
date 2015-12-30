@@ -2,6 +2,7 @@ package poc1;
 
 import javaslang.collection.Stream;
 import javaslang.control.Match;
+import org.myeslib.data.Command;
 import org.myeslib.data.CommandId;
 
 import java.io.PrintStream;
@@ -30,15 +31,17 @@ public class PatternMatchTest {
 
         CreateCustomerCmd command1 = CreateCustomerCmd.builder().commandId(CommandId.create()).number(1).build();
 
+        CreateCustomerCmd command2 = CreateCustomerCmd.builder().commandId(CommandId.create()).number(1).build();
+
         DeliversTo deliversToCmd = DeliversToCmd.builder().commandId(CommandId.create()).string("a valid string").build();
 
-        Stream.of(null, command1, deliversToCmd)
-                .map(Match.as(Object.class) // Match function (with apply(Object))
+        Stream.of(null, command1, command2, deliversToCmd)
+                .map(Match.as(Command.class) // Match function (with apply(Object))
                                 .when(Objects::isNull).then("is null")
-//                                .whenIs(command1).then("command1")
-                                .whenType(CreateCustomerCmd.class).then((customerCmd) -> customerCmd.getCommandId())
-                                .whenType(DeliversTo.class).then("DeliversTo command instance")
-                                .otherwise(() -> "whats")
+                                .whenIs(command1).then("command1")
+                                .whenType(CreateCustomerCmd.class).then((customerCmd) -> customerCmd.getNumber())
+                                .whenType(DeliversTo.class).then((cmd) -> cmd.getString())
+                                .otherwise((command) -> command)
                 )
                 .forEach(out::println);
                 ;
